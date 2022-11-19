@@ -2,6 +2,7 @@
 cargar_datos macro
                  mov ax, @data
                  mov ds, ax
+                 mov es, ax
 endm
 
 imprimir macro str
@@ -21,14 +22,22 @@ leer_string macro destino,maximos_digitos
                 call prc_leer_string
 endm
 
+comparar_string macro cad1, cad2, tam
+                    mov cx, tam
+                    lea si ,cad1
+                    lea di, cad2
+                    rep cmpsb
+
+endm
 .model small
 .stack 200h
 .data
-    contrasenia              db 'ggezpz'
     newline                  db 10,13,'$'
+    contrasenia              db 'ggezpz'
     msgcontrasenia           db 'Ingrese la contraseña: ',10,13,'$'
     msgcontraseniaincorrecta db 'Las tres contraseñas ingresadas fueron incorrectas',10,13,'$'
     contraseniaingresada     db 'ci123456e','$'
+    flgcontrcorrecta         db 0
     nummaxintentos           dw 3
     msgerrorcontrasenia      db 'La contraseña ingresada fue incorrecta, presione una tecla para salir',10,13,'$'
     msgmenu                  db '1. Suma y diferencia de dos numeros entre -16384 a 16383',10,13
@@ -48,56 +57,66 @@ endm
 .code
 main proc near
                          cargar_datos
-                         mov          cx, nummaxintentos
-                         
+                         mov             cx, nummaxintentos
+                         call            prc_limpiar_pantalla
+
+    ; Autentica la contraseña ingresada por teclado
     autenticacion:       
-                         imprimir     msgcontrasenia
-                         leer_string  contraseniaingresada, 7     ; en realidad lee 6 caracteres y el enter
-                         loop         autenticacion
-                         imprimir     msgcontraseniaincorrecta
-                         imprimir     msgsalida
-                         imprimir     msgprestecla
-                         leer_char    waitvar
-                         call         prc_salir
+                         imprimir        msgcontrasenia
+                         leer_string     contraseniaingresada, 7                   ; en realidad lee 6 caracteres y el enter
+                         push            cx
+                         comparar_string contrasenia, contraseniaingresada[2],6
+                         je              autenticado
+                         pop             cx
+                         loop            autenticacion
+
+                         imprimir        msgcontraseniaincorrecta
+                         imprimir        msgsalida
+                         imprimir        msgprestecla
+                         leer_char       waitvar
+                         call            prc_salir
+
     autenticado:         
-                         call         prc_limpiar_pantalla
-                         imprimir     msgmenu
-                         leer_char    opcionescogida
-                         cmp          opcionescogida[0],'5'
-                         je           prc_salir
-                         jmp          autenticado
+                         call            prc_limpiar_pantalla
+                         imprimir        msgmenu
+                         leer_char       opcionescogida
+                         cmp             opcionescogida[0],'5'
+                         je              prc_salir
+                         jmp             autenticado
    
 main endp
 prc_imprimir proc
-                         mov          ah, 09h
-                         int          21h
+                         mov             ah, 09h
+                         int             21h
                          ret
 prc_imprimir endp
     
 prc_leer_char proc
-                         mov          ah, 1
-                         int          21h
+                         mov             ah, 1
+                         int             21h
                          ret
 prc_leer_char endp
     
 prc_limpiar_pantalla proc
-                         mov          ah ,00
-                         mov          al, 02
-                         int          10h
+                         mov             ah ,00
+                         mov             al, 02
+                         int             10h
                          ret
 prc_limpiar_pantalla endp
 
 prc_leer_string proc
-                         mov          ah,10
-                         int          21h
+                         mov             ah,10
+                         int             21h
                          ret
 prc_leer_string endp
 
+
+
 prc_salir proc
-                         imprimir     msgsalida
-                         imprimir     msgprestecla
-                         leer_char    waitvar
-                         mov          ah,4ch
-                         int          21h
+                         imprimir        msgsalida
+                         imprimir        msgprestecla
+                         leer_char       waitvar
+                         mov             ah,4ch
+                         int             21h
 prc_salir endp
 end main
