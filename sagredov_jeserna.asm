@@ -71,9 +71,6 @@ main proc near
                          loop            autenticacion
 
                          imprimir        msgcontraseniaincorrecta
-                         imprimir        msgsalida
-                         imprimir        msgprestecla
-                         leer_char       waitvar
                          call            prc_salir
 
     autenticado:         
