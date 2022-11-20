@@ -3,6 +3,7 @@ cargar_datos macro
                  mov ax, @data
                  mov ds, ax
                  mov es, ax
+                 
 endm
 
 imprimir macro str
@@ -27,8 +28,9 @@ comparar_string macro cad1, cad2, tam
                     lea si ,cad1
                     lea di, cad2
                     rep cmpsb
-
 endm
+
+
 .model small
 .stack 200h
 .data
@@ -37,7 +39,6 @@ endm
     msgcontrasenia           db 'Ingrese la contraseña: ',10,13,'$'
     msgcontraseniaincorrecta db 'Las tres contraseñas ingresadas fueron incorrectas',10,13,'$'
     contraseniaingresada     db 'ci123456e','$'
-    flgcontrcorrecta         db 0
     nummaxintentos           dw 3
     msgerrorcontrasenia      db 'La contraseña ingresada fue incorrecta, presione una tecla para salir',10,13,'$'
     msgmenu                  db '1. Suma y diferencia de dos numeros entre -16384 a 16383',10,13
@@ -59,7 +60,6 @@ main proc near
                          cargar_datos
                          mov             cx, nummaxintentos
                          call            prc_limpiar_pantalla
-
     ; Autentica la contraseña ingresada por teclado
     autenticacion:       
                          imprimir        msgcontrasenia
@@ -75,6 +75,7 @@ main proc near
 
     autenticado:         
                          call            prc_limpiar_pantalla
+                         call            prc_cambiar_color
                          imprimir        msgmenu
                          leer_char       opcionescogida
                          cmp             opcionescogida[0],'5'
@@ -93,7 +94,22 @@ prc_leer_char proc
                          int             21h
                          ret
 prc_leer_char endp
-    
+prc_cambiar_color proc
+                         mov             ax, 3
+                         int             10h
+
+                         mov             ax, 1003h
+                         mov             bx, 0                                     ; desactiva los parpadeos
+                         int             10h
+                         
+                         mov             ah, 06h
+                         xor             al, al
+                         xor             cx, cx
+                         mov             dx, 184fh
+                         mov             bh, 0c0h                                  ; color a poner
+                         int             10h
+                         ret
+prc_cambiar_color endp
 prc_limpiar_pantalla proc
                          mov             ah ,00
                          mov             al, 02
@@ -106,8 +122,6 @@ prc_leer_string proc
                          int             21h
                          ret
 prc_leer_string endp
-
-
 
 prc_salir proc
                          imprimir        msgsalida
