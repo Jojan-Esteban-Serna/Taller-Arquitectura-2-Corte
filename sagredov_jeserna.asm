@@ -30,6 +30,12 @@ comparar_string macro cad1, cad2, tam
                     rep cmpsb
 endm
 
+leer_hex macro dst
+             push bx
+             call prc_leer_hex
+             mov  dst, bl
+             pop  bx
+endm
 
 .model small
 .stack 200h
@@ -122,6 +128,36 @@ prc_leer_string proc
                          int             21h
                          ret
 prc_leer_string endp
+    ; lee un numero hexadecimal en bl
+prc_leer_hex proc
+                         mov             cx ,2
+                         mov             bl,0
+                         push            ax
+    ; limpiar ax
+    leyendo:             
+             
+                         call            prc_leer_char
+                         cmp             al , '0'
+                         jbe             error
+                         cmp             al, 'f'
+                         ja              error
+                         cmp             al, '9'
+                         jbe             numero
+                         sub             al, 57h
+                         jmp             mover_4_bits
+    numero:              
+                         sub             al, 30h
+                         jmp             mover_4_bits
+    mover_4_bits:        
+                         shl             bl, 4
+                         or              bl, al
+                         loop            leyendo
+                         ret
+    error:               
+                         pop             ax
+                         ret
+
+prc_leer_hex endp
 
 prc_salir proc
                          imprimir        msgsalida

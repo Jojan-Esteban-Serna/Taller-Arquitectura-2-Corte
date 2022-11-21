@@ -11,18 +11,19 @@
 main proc near
                  mov  ax, @data
                  mov  ds, ax
-                 call leer_hex
+                 call prc_leer_hex
                  mov  ah, 4ch
                  int  21h
 main endp
 
-
-leer_hex proc
+    ; lee un numero hexadecimal en bl
+prc_leer_hex proc
                  mov  cx ,2
+                 mov  bl, 0
                  mov  ax ,0           ; limpiar ax
     leyendo:     
              
-                 mov  ah, 01h
+                 mov  ah, 01h         ; esto se puede reusar, hay que sacarlo
                  int  21h
                  cmp  al , '0'
                  jbe  error
@@ -44,5 +45,5 @@ leer_hex proc
                  mov  ax, 0
                  ret
 
-leer_hex endp
+prc_leer_hex endp
 end main

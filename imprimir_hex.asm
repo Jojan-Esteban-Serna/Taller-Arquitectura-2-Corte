@@ -40,36 +40,62 @@
      two     db 2
 .code
 main proc
-          mov ax, @data
-          mov ds, ax
+                              mov  ax, @data
+                              mov  ds ,ax
+                              mov  cl, hexnum
+                              call prc_imprimir_bytehex2hex
+                              call prc_imprimir_bytehex2bin
+                              mov  ah, 4ch
+                              int  21h
+main endp
+     ; imprime el byte que este en cl a hexadecimal
+prc_imprimir_bytehex2hex proc
+                              mov  ah, 0
+                              mov  al, cl
+                              and  al, 0f0h
+                              shr  al,4
+                              mul  two
+                              mov  si,ax
 
-          mov ah, 0
-          mov al, hexnum
-          and al, 0f0h
-          shr al,4
-     ;mul five
-          mul two
-          mov si,ax
-
-     ;lea dx,  dictbin[si]
-          lea dx,  dicthex[si]
-          mov ah, 9
-          int 21h
+                              lea  dx,  dicthex[si]
+                              mov  ah, 9
+                              int  21h
 
  
-          mov ah, 0
-          mov al,hexnum
-          and al,0fh
-     ;mul five
-          mul two
-          mov si, ax
+                              mov  ah, 0
+                              mov  al,cl
+                              and  al,0fh
+                              mul  two
+                              mov  si, ax
 
-     ;lea dx,  dictbin[si]
-          lea dx,  dicthex[si]
-          mov ah, 9
-          int 21h
-        
+                              lea  dx,  dicthex[si]
+                              mov  ah, 9
+                              int  21h
+                              ret
+prc_imprimir_bytehex2hex endp
+     ; imprime el byte que este en cl a binario
+prc_imprimir_bytehex2bin proc
+                              mov  ah, 0
+                              mov  al, cl
+                              and  al, 0f0h
+                              shr  al,4
+                              mul  five
+                              mov  si,ax
 
-main endp
+                              lea  dx,  dictbin[si]
+                              mov  ah, 9                        ; se puede reusar
+                              int  21h
 
+ 
+                              mov  ah, 0
+                              mov  al,cl
+                              and  al,0fh
+                              mul  five
+                              mov  si, ax
+
+                              lea  dx,  dictbin[si]
+                              mov  ah, 9
+                              int  21h
+                              ret
+prc_imprimir_bytehex2bin endp
 end main
