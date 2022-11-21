@@ -38,7 +38,16 @@ comparar_string macro cad1, cad2, tam
                     lea di, cad2
                     rep cmpsb
 endm
-
+imprimir_hex_bin macro nmbr
+                     
+                     imprimir             msghex
+                     imprimir_bytehex2hex nmbr
+                     imprimir_caracter    ','
+                     imprimir_caracter    ' '
+                     imprimir             msgbin
+                     imprimir_bytehex2bin nmbr
+                     imprimir             newline
+endm
 leer_hex macro dst
              push bx
              call prc_leer_hex
@@ -109,12 +118,13 @@ endm
     msgmultiplicacion        db 'Multiplicacion: $'
     msgdivision              db 'Division: $'
     ; relacionado a los hexadecimales
-    msgnumero1inresado       db 'Primer numero ingresado',10,13,'$'
-    msgnumero2inresado       db 'Segundo numero ingresado',10,13,'$'
-
-    msgnot                   db 'NOT: $'
-    msgand                   db 'AND: $'
-    msgor                    db 'XOR: $'
+    msgnumero1ingresado      db 'Primer numero ingresado',10,13,'$'
+    msgnumero2ingresado      db 'Segundo numero ingresado',10,13,'$'
+    msgbin                   db 'BIN: $'
+    msgnot                   db 'Aplicando NOT $'
+    msgand                   db 'Aplicando AND con los 2 numeros $'
+    msgor                    db 'Aplicando OR con los 2 numeros $'
+    msgxor                   db 'Aplicando XOR con los 2 numeros $'
     msghex                   db 'HEX: $'
     msgdec                   db 'DEC: $'
 
@@ -263,6 +273,64 @@ main proc near
                                 jmp               volver_al_menu
 
     opcion_3:                   
+                                call              prc_limpiar_pantalla
+                                call              prc_cambiar_color
+    ; pedir los datos
+                                imprimir          msgpedirnumero1
+                                leer_hex          hex1
+                                imprimir          newline
+                                imprimir          msgpedirnumero2
+                                leer_hex          hex2
+                                imprimir          newline
+
+    ;imprimir el primer dato
+                                imprimir          msgnumero1ingresado
+                                imprimir_hex_bin  hex1
+
+    ;NOT
+                                mov               bh ,hex1
+                                not               bh
+                                imprimir          msgnot
+                                imprimir          newline
+
+                                imprimir_hex_bin  bh
+                                imprimir          newline
+    ;imprimir el segundo dato
+                                imprimir          msgnumero2ingresado
+                                imprimir_hex_bin  hex2
+
+    ;NOT
+                                mov               bh ,hex2
+                                not               bh
+                                imprimir          msgnot
+                                imprimir          newline
+
+                                imprimir_hex_bin  bh
+                                imprimir          newline
+    ;AND
+                                imprimir          msgand
+                                imprimir          newline
+                                mov               bh, hex1
+                                and               bh, hex2
+                                imprimir_hex_bin  bh
+                                imprimir          newline
+
+    ;OR
+                                imprimir          msgor
+                                imprimir          newline
+                                mov               bh, hex1
+                                or                bh, hex2
+                                imprimir_hex_bin  bh
+                                imprimir          newline
+
+    ;XOR
+                                imprimir          msgxor
+                                imprimir          newline
+                                mov               bh, hex1
+                                xor               bh, hex2
+                                imprimir_hex_bin  bh
+                                imprimir          newline
+
                                 jmp               volver_al_menu
 
     opcion_4:                   
@@ -478,7 +546,7 @@ prc_leer_numero proc
     ; hace espacio para el proximo digito
                                 push              ax
                                 mov               ax, cx
-                                mul               ten                                       ; dx:ax = ax*10
+                                mul               ten
                                 mov               cx, ax
                                 pop               ax
 
