@@ -39,7 +39,7 @@ leer_hex proc
                  shl  bl, 4
                  or   bl, al
                  loop leyendo
-
+                 ret
     error:       
                  mov  ax, 0
                  ret
