@@ -104,7 +104,7 @@ endm
     num2                     dw 0
     msgpedirnumero1          db 'Ingrese el primer numero: ',10,13,'$'
     msgpedirnumero2          db 'Ingrese el segundo numero: ',10,13,'$'
-    msgresuma                db 'Suma: $'
+    msgsuma                  db 'Suma: $'
     msgresta                 db 'Resta: $'
     msgmultiplicacion        db 'Multiplicacion: $'
     msgdivision              db 'Division: $'
@@ -192,13 +192,13 @@ main proc near
                                 je                opcion_1
 
                                 cmp               opcionescogida[0],'2'
-                                je                opcion_2
+                                je                link_opcion_2
 
                                 cmp               opcionescogida[0],'3'
-                                je                opcion_3
+                                je                link_opcion_3
 
                                 cmp               opcionescogida[0],'4'
-                                je                opcion_4
+                                je                link_opcion_4
 
                                 cmp               opcionescogida[0],'5'
                                 jne               autenticado
@@ -207,8 +207,33 @@ main proc near
                                 leer_char         waitvar
                                 mov               ah,4ch
                                 int               21h
+    link_opcion_2:              
+                                jmp               opcion_2
+    link_opcion_3:              
+                                jmp               opcion_3
+    link_opcion_4:              
+                                jmp               opcion_4
     ; opciones
     opcion_1:                   
+                                call              prc_limpiar_pantalla
+                                call              prc_cambiar_color
+                                imprimir          msgpedirnumero1
+                                leer_numero       num1, 16384, 16383
+                                imprimir          msgpedirnumero2
+                                leer_numero       num2, 16384, 16383
+                                mov               bx, num1
+                                add               bx, num2
+                                imprimir          newline
+                                imprimir          msgsuma
+                                imprimir          newline
+                                imprimir_numero   bx
+                                mov               bx, num1
+                                sub               bx, num2
+                                imprimir          newline
+                                imprimir          msgresta
+                                imprimir          newline
+                                imprimir_numero   bx
+                                imprimir          newline
                                 jmp               volver_al_menu
 
     opcion_2:                   
