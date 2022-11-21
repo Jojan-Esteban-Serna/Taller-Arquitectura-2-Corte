@@ -237,6 +237,29 @@ main proc near
                                 jmp               volver_al_menu
 
     opcion_2:                   
+                                call              prc_limpiar_pantalla
+                                call              prc_cambiar_color
+                                imprimir          msgpedirnumero1
+                                leer_numero       num1, 128, 127
+                                imprimir          msgpedirnumero2
+                                leer_numero       num2, 128, 127
+
+                                mov               ax, num1
+                                imul              num2
+                                mov               bx, ax
+                                imprimir          newline
+                                imprimir          msgmultiplicacion
+                                imprimir          newline
+                                imprimir_numero   bx
+
+                                mov               ax, num1
+                                idiv              num2
+                                mov               bx, ax
+                                imprimir          newline
+                                imprimir          msgdivision
+                                imprimir          newline
+                                imprimir_numero   bx
+                                imprimir          newline
                                 jmp               volver_al_menu
 
     opcion_3:                   
