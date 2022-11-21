@@ -58,16 +58,18 @@ imprimir_bytehex2bin macro src
                          pop  cx
 endm
 leer_numero macro dst, maxneg, maxpos
+                push cx
                 mov  limneg, maxneg
                 mov  limpos, maxpos
                 call prc_leer_numero
                 mov  dst, cx
+                pop  cx
 endm
 
 imprimir_numero macro num
                     push ax
                     mov  ax, num
-                    call prc_imprimir_numero
+                    call prc_imprimir_signumero
                     pop  ax
 endm
 .model small
@@ -100,7 +102,22 @@ endm
     zero                     db '0'
     num1                     dw 0
     num2                     dw 0
+    msgpedirnumero1          db 'Ingrese el primer numero: ',10,13,'$'
+    msgpedirnumero2          db 'Ingrese el segundo numero: ',10,13,'$'
+    msgresuma                db 'Suma: $'
+    msgresta                 db 'Resta: $'
+    msgmultiplicacion        db 'Multiplicacion: $'
+    msgdivision              db 'Division: $'
     ; relacionado a los hexadecimales
+    msgnumero1inresado       db 'Primer numero ingresado',10,13,'$'
+    msgnumero2inresado       db 'Segundo numero ingresado',10,13,'$'
+
+    msgnot                   db 'NOT: $'
+    msgand                   db 'AND: $'
+    msgor                    db 'XOR: $'
+    msghex                   db 'HEX: $'
+    msgdec                   db 'DEC: $'
+
     dictbin                  db '0000$'
                              db '0001$'
                              db '0010$'
@@ -136,7 +153,13 @@ endm
     
     five                     db 5
     two                      db 2
+    hex1                     db 0
+    hex2                     db 0
+    ; relacionado con la serie
+    msgserie                 db 'Resultado serie alternada: $'
+    limserie                 dw 11h
 .code
+
 main proc near
                                 cargar_datos
                                 mov               cx, nummaxintentos
@@ -152,25 +175,85 @@ main proc near
                                 loop              autenticacion
 
                                 imprimir          msgcontraseniaincorrecta
-                                call              prc_salir
+                                imprimir          msgsalida
+                                imprimir          msgprestecla
+                                leer_char         waitvar
+                                mov               ah,4ch
+                                int               21h
+                            
 
     autenticado:                
                                 call              prc_limpiar_pantalla
                                 call              prc_cambiar_color
                                 imprimir          msgmenu
                                 leer_char         opcionescogida
+
+                                cmp               opcionescogida[0],'1'
+                                je                opcion_1
+
+                                cmp               opcionescogida[0],'2'
+                                je                opcion_2
+
+                                cmp               opcionescogida[0],'3'
+                                je                opcion_3
+
+                                cmp               opcionescogida[0],'4'
+                                je                opcion_4
+
                                 cmp               opcionescogida[0],'5'
-                                je                prc_salir
-                                jmp               autenticado
-   
-main endp
-prc_salir proc
+                                jne               autenticado
                                 imprimir          msgsalida
                                 imprimir          msgprestecla
                                 leer_char         waitvar
                                 mov               ah,4ch
                                 int               21h
-prc_salir endp
+    ; opciones
+    opcion_1:                   
+                                jmp               volver_al_menu
+
+    opcion_2:                   
+                                jmp               volver_al_menu
+
+    opcion_3:                   
+                                jmp               volver_al_menu
+
+    opcion_4:                   
+                                call              prc_limpiar_pantalla
+                                call              prc_cambiar_color
+                                imprimir          msgserie
+                                push              cx
+                                mov               cx, 1
+    serie:                      
+                                mov               ax, cx
+                                and               ax, 1b
+                                cmp               ax, 1b
+                                jne               res_positivo
+                                imprimir_caracter '-'
+    res_positivo:               
+
+                                imprimir_numero   cx
+                                imprimir_caracter ','
+                                imprimir_caracter ' '
+
+                                inc               cx
+                                cmp               cx, limserie
+                                jne               serie
+                                imprimir_caracter 8
+                                imprimir_caracter 8
+                                imprimir_caracter ' '
+                                imprimir_caracter 8
+                                imprimir          newline
+                                jmp               volver_al_menu
+                                
+    volver_al_menu:             
+                                imprimir          msgprestecla
+                                leer_char         waitvar
+                                call              prc_limpiar_pantalla
+                                jmp               autenticado
+    
+main endp
+
+
 prc_imprimir proc
                                 mov               ah, 09h
                                 int               21h
@@ -220,13 +303,13 @@ prc_leer_hex proc
              
                                 call              prc_leer_char
                                 cmp               al , '0'
-                                jbe               no_valido
+                                jb                no_valido
                                 cmp               al, 'f'
                                 ja                no_valido
                                 cmp               al, '9'
                                 jbe               numero
                                 cmp               al, 'a'
-                                jbe               no_valido
+                                jb                no_valido
                                 sub               al, 57h
                                 jmp               mover_4_bits
     numero:                     
