@@ -418,6 +418,8 @@ prc_leer_hex proc
     leyendo:                    
              
                                 call              prc_leer_char
+                                cmp               al, 8
+                                je                no_valido
                                 cmp               al , '0'
                                 jb                no_valido
                                 cmp               al, 'f'
@@ -436,10 +438,13 @@ prc_leer_hex proc
                                 or                bl, al
                                 loop              leyendo
                                 ret
+    
     no_valido:                  
+                                shr               bl,4
                                 imprimir_caracter 8
                                 imprimir_caracter ' '
                                 imprimir_caracter 8
+                                inc               cx
                                 inc               cx
                                 loop              leyendo
 
