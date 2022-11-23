@@ -434,13 +434,19 @@ prc_leer_hex proc
                                 sub               al, 30h
                                 jmp               mover_4_bits
     mover_4_bits:               
-                                shl               bl, 4
+                                push              cx
+                                mov               cl ,4
+                                shl               bl, cl
+                                pop               cx
                                 or                bl, al
                                 loop              leyendo
                                 ret
     
     no_valido:                  
-                                shr               bl,4
+                                push              cx
+                                mov               cl, 4
+                                shr               bl,cl
+                                pop               cx
                                 imprimir_caracter 8
                                 imprimir_caracter ' '
                                 imprimir_caracter 8
@@ -455,7 +461,10 @@ prc_imprimir_bytehex2hex proc
                                 mov               ah, 0
                                 mov               al, cl
                                 and               al, 0f0h
-                                shr               al,4
+                                push              cx
+                                mov               cl, 4
+                                shr               al,cl
+                                pop               cx
                                 mul               two
                                 mov               si,ax
 
@@ -479,7 +488,10 @@ prc_imprimir_bytehex2bin proc
                                 mov               ah, 0
                                 mov               al, cl
                                 and               al, 0f0h
-                                shr               al,4
+                                push              cx
+                                mov               cl, 4
+                                shr               al,cl
+                                pop               cx
                                 mul               five
                                 mov               si,ax
 
