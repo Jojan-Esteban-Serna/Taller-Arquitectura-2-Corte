@@ -263,8 +263,7 @@ main proc near
                                 imprimir_numero   bx
 
                                 mov               ax, num1
-                                mov               bx, num2
-                                idiv              bl
+                                idiv              num2
                                 mov               bx, ax
                                 imprimir          newline
                                 imprimir          msgdivision
